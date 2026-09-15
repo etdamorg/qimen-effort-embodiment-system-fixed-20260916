@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #FAFAFA;
+  --surf: #FFFFFF;
+  --sunk: #F2F2F0;
+  --panel: #FFFFFF;
+  --ink: #121212;
+  --mut: rgba(18,18,18,.56);
+  --dim: rgba(18,18,18,.34);
+  --line: rgba(18,18,18,.15);
+  --line-strong: rgba(18,18,18,.42);
+  --code: #F5F5F3;
+  --sans: "Noto Sans SC",-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Helvetica Neue",Arial,sans-serif;
+  --mono: "SFMono-Regular","Menlo",ui-monospace,"Noto Sans SC",monospace;
+  --lead-rgb: 250,250,250;
+}
+
+body {
+  font-family: var(--sans);
+  background-color: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mono {
+  font-family: var(--mono);
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: var(--sunk);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--dim);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-family: var(--mono);
+  padding: 1px 6px;
+  border-radius: 0px;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--mut);
+}
+
+.tag-active {
+  background: var(--ink);
+  color: var(--bg);
+  border-color: var(--ink);
+}
+
+/* 语义状态一律用黑白关系表达，不用色相：
+   .state-plain  = 协和/常态，细线勾边
+   .state-echo   = 共振/比和，双线勾边
+   .state-alert  = 克战/警示，整块反白（黑底浅字），是全系统唯一的"重"信号 */
+.state-plain { border-color: var(--line-strong); color: var(--ink); background: transparent; }
+.state-echo  { border: 1px double var(--ink); color: var(--ink); background: transparent; }
+.state-alert { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+.hatch-diag {
+  background-image: repeating-linear-gradient(135deg, transparent, transparent 7px, var(--line) 7px, var(--line) 8px);
+}
+
+* { border-radius: 0 !important; box-shadow: none !important; }
+input, select, textarea, button {
+  border-radius: 0 !important;
+}
+
+

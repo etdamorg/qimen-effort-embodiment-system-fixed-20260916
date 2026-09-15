@@ -1,0 +1,6 @@
+{
+  "name": "Qimen Effort Embodiment System",
+  "description": "Deterministic symbolic embodiment generator mapping Qimen states to Laban Effort, 64-grid transformations, and embodied action scores for experimental theatre and dance workshops.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
