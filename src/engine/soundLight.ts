@@ -21,7 +21,6 @@ export interface DerivedSoundParams {
   geometryReason: string;
   lu: string;
   fundamentalHz: number;
-  densityHint: string;
   sourceVoice: string; // 当前这份声音参数取自哪个声部,便于UI标注,避免误以为是宫位级快照
 }
 
@@ -61,8 +60,18 @@ const LU_SEMITONE: Record<string, number> = {
 };
 const BASE_HZ_HUANGZHONG = 130.81; // c3，取古琴六弦"清宫"音高为黄钟基准
 
-/** 在具身谱的时间轴上，找出某一时间点(秒)真正活跃的那张声部卡片。
- *  悬持段五声部同时在场，无单一"活跃声部"，按惯例取天下(收束声部,cards[4])代表持续状态，并单独标注。 */
+/** 在具身谱的时间轴上，找出某一时间点(秒)"累积在场"的全部声部卡片——
+ *  五声部叠合、进场后不退场，这里返回的是当前正在叠加中的整个和弦，不是单一声部。
+ *  悬持段全部五声部都在场。 */
+export function getActiveVoicesAtTime(score: EmbodimentScore, time: number): ActionCardData[] {
+  if (score.suspension && time >= score.suspension.startTime) {
+    return score.cards; // 悬持段:五声部全部在场
+  }
+  return score.cards.filter((c) => time >= c.startTime);
+}
+
+/** 在具身谱的时间轴上，找出某一时间点(秒)最新进场、当前主导的那张声部卡片。
+ *  悬持段五声部同时在场，无单一"主导声部"，按惯例取天下(收束声部,cards[4])代表持续状态，并单独标注。 */
 export function getActiveCardAtTime(
   score: EmbodimentScore,
   time: number
@@ -76,6 +85,19 @@ export function getActiveCardAtTime(
   return score.cards.length ? { card: score.cards[score.cards.length - 1], isSuspension: false } : null;
 }
 
+/** 累积和弦的复合几何:把当前所有在场声部各自的几何取并集展示(不是单值)，
+ *  真正反映"这一刻是几个几何叠在一起"而不是"这一刻是哪一个几何"。 */
+export function deriveCompoundGeometry(
+  activeVoices: ActionCardData[]
+): { geometries: SoundGeometry[]; label: string; densityCount: number } {
+  const uniq: SoundGeometry[] = [];
+  activeVoices.forEach((c) => {
+    const { geometry } = geometryFromEffort(c.modifier);
+    if (!uniq.includes(geometry)) uniq.push(geometry);
+  });
+  return { geometries: uniq, label: uniq.join(' + ') || '—', densityCount: activeVoices.length };
+}
+
 /** 给定当前活跃声部的掺(modifier)力效 + 当晚律吕，推导这一刻的声音几何参数。
  *  取代旧版"固定只读天上声部"的做法——现在跟随具身时间轴，五声部依次轮到。 */
 export function deriveSoundParamsForVoice(
@@ -87,7 +109,7 @@ export function deriveSoundParamsForVoice(
   const semitone = LU_SEMITONE[nt.lu] ?? 0;
   const fundamentalHz = Number((BASE_HZ_HUANGZHONG * Math.pow(2, semitone / 12)).toFixed(2));
   const { geometry, reason } = geometryFromEffort(modifierEffort);
-  return { geometry, geometryReason: reason, lu: nt.lu, fundamentalHz, densityHint: '', sourceVoice: voiceRole };
+  return { geometry, geometryReason: reason, lu: nt.lu, fundamentalHz, sourceVoice: voiceRole };
 }
 
 // 灯光为宫位级参数(音量/协克/时值均为宫位属性，不随声部切换)，与声音的"随声部变化"不是同一颗粒度，故独立保留
